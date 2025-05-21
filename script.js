@@ -1,143 +1,144 @@
-// Pobranie elementów z DOM
-const gameContainer = document.getElementById("game");
-const message = document.getElementById("message");
-const resetBtn = document.getElementById("reset");
-const canvas = document.getElementById("line");
-const ctx = canvas.getContext("2d");
+const board = document.querySelector("#board");
+let currentPlayer = "X";
 
-let playerMode = 2; // Domyślnie tryb dla 2 graczy
+// Kwadraciki do uzupełnienia znakami
+let gameBoard = ["","","","","","","","",""];
+let winningCombo = [0,0,0];
 
-// Stałe gry
-const boardSize = 3;
-let board = Array(boardSize * boardSize).fill(""); // Tablica 3x3 wypełniona pustymi polami
-let currentPlayer = "X"; // X zaczyna
-let gameActive = true; // Flaga, czy gra trwa
-
-// Kombinacje zwycięskie
-const winCombos = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8], // poziomo
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8], // pionowo
-  [0, 4, 8],
-  [2, 4, 6], // diagonalnie
-];
-
-// Obsługa przycisków wyboru liczby graczy
-document.getElementById("one-player").addEventListener("click", () => {
-  playerMode = 1;
-  startGame();
-});
-
-document.getElementById("two-players").addEventListener("click", () => {
-  playerMode = 2;
-  startGame();
-});
-
-// Tworzenie planszy 3x3
-function createBoard() {
-  gameContainer.innerHTML = ""; // Wyczyść stare pola
-  board.forEach((cell, index) => {
-    const div = document.createElement("div");
-    div.classList.add("cell");
-    div.dataset.index = index;
-    div.addEventListener("click", handleClick); // Dodaj obsługę kliknięcia
-    gameContainer.appendChild(div);
-  });
-
-  resizeCanvas(); // Dostosuj rozmiar canvas do planszy
-}
-
-// Obsługa kliknięcia pola gry
-function handleClick(e) {
-  const index = e.target.dataset.index;
-
-  if (!gameActive || board[index]) return; // Jeśli gra nieaktywna lub pole zajęte — ignoruj
-
-  board[index] = currentPlayer;
-  e.target.textContent = currentPlayer;
-
-  if (checkWinner()) {
-    message.textContent = `Gracz ${currentPlayer} wygrał!`;
-    gameActive = false;
-    return;
-  }
-
-  if (!board.includes("")) {
-    message.textContent = "Remis!";
-    gameActive = false;
-    return;
-  }
-
-  // Zmiana gracza
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-}
-
-// Sprawdzenie, czy jest zwycięzca
-function checkWinner() {
-  for (let combo of winCombos) {
-    const [a, b, c] = combo;
-    if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-      drawWinLine(combo); // Rysuj linię przez zwycięskie pola
-      return true;
+// Tworzenie planszy
+function createBoard() {    
+    for(let i = 0; i < 9; i++){
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', handleCellClick);
+        board.appendChild(cell);
     }
-  }
-  return false;
 }
 
-// Rysowanie czerwonej linii zwycięstwa
-function drawWinLine([a, b, c]) {
-  const cells = document.querySelectorAll(".cell");
-  const start = cells[a].getBoundingClientRect();
-  const end = cells[c].getBoundingClientRect();
-
-  const gameRect = gameContainer.getBoundingClientRect();
-
-  // Oblicz współrzędne względem planszy
-  const startX = start.left + start.width / 2 - gameRect.left;
-  const startY = start.top + start.height / 2 - gameRect.top;
-  const endX = end.left + end.width / 2 - gameRect.left;
-  const endY = end.top + end.height / 2 - gameRect.top;
-
-  // Rysowanie linię
-  ctx.strokeStyle = "red";
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(endX, endY);
-  ctx.stroke();
+// Funkcja obsługijąca kliknięcie i dodania znaku
+function handleCellClick(event) {
+    const messageTur = document.querySelector("#message");
+    console.log('Cell clicked:', event.target.dataset.index);
+    event.target.textContent = currentPlayer;
+    gameBoard[event.target.dataset.index] = currentPlayer;
+    console.log(checkWin());
+    if(checkWin()) {
+        messageTur.textContent= `${currentPlayer} wygrał!`;
+        console.log(`${currentPlayer} wygrał!`);
+        drawWinningLine();
+    } else {
+    if(currentPlayer === "X") {
+        currentPlayer = "O";
+        messageTur.textContent = "Tura: O"
+    }
+    else {
+        currentPlayer = "X";
+        messageTur.textContent = "Tura: X"
+        }
+        event.target.removeEventListener("click", handleCellClick);
+    }
 }
 
-// Reset gry i powrót do wyboru trybu
-function resetGame() {
-  board = Array(boardSize * boardSize).fill(""); // Wyczyść planszę
-  currentPlayer = "X";
-  gameActive = true;
-  message.textContent = "";
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Czyść canvas
-  gameContainer.innerHTML = ""; // Usuń pola
-  document.getElementById("player-select").style.display = "block"; // Pokaż wybór graczy
-  document.getElementById("reset").style.display = "none"; // Ukryj reset
+// Twarzenie planszy
+createBoard();
+
+// Sprawdzanie zwyciężcy
+function checkWin() {
+    const winConditions = [
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+        [0,4,8],
+        [2,4,6],
+    ];
+
+
+    for (const condition of winConditions){
+        const [a,b,c] = condition;
+        if (
+            gameBoard[a] &&
+            gameBoard[a] === gameBoard[b] &&
+            gameBoard[a] === gameBoard[c]
+        ) {
+            winningCombo = condition;
+            return true;
+        }
+    }
+    
+    return false;
 }
 
-// Uruchomienie gry po wyborze graczy
-function startGame() {
-  document.getElementById("player-select").style.display = "none"; // Ukryj wybór
-  document.getElementById("reset").style.display = "inline-block"; // Pokaż reset
-  createBoard(); // Stwórz planszę
-}
-
-// Dopasowanie rozmiaru canvas do planszy
-function resizeCanvas() {
-  const rect = gameContainer.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-  canvas.style.top = rect.top + "px";
-  canvas.style.left = rect.left + "px";
-}
-
-// Nasłuchiwanie na reset i zmianę rozmiaru okna
+// Przycisk resetujący grę
+const resetBtn = document.querySelector("#resetBtn");
 resetBtn.addEventListener("click", resetGame);
-window.addEventListener("resize", resizeCanvas);
+function resetGame() {
+    gameBoard = ["","","","","","","","",""];
+    currentPlayer = "X";
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach((cell) => {
+        cell.textContent = "";
+        cell.addEventListener("click", handleCellClick)
+
+        const jestLine = document.querySelector(".line");
+        if (jestLine) {
+            jestLine.remove();
+        }
+    });
+    document.getElementById("message").textContent = "Tura: X";
+    
+    
+}
+resetGame();
+
+// Rysowanie linii po wygraniu
+function drawWinningLine() {
+    const line = document.createElement("div");
+    line.classList.add("line");
+    board.appendChild(line);
+
+    const start = winningCombo[0];
+    const end = winningCombo[2];
+
+    console.log(winningCombo[0], winningCombo[1], winningCombo[2]);
+    console.log(winningCombo);
+
+    if (start === 0 && end === 2) {
+        line.style.top = "50px";
+        line.style.left = "0";
+    } else if (start === 3 && end === 5) {
+        line.style.top = "155px";
+        line.style.left = "0";
+    } else if (start === 6 && end === 8) {
+        line.style.top = "260px";
+        line.style.left = "0";
+    } else if (start === 0 && end === 6) {
+        line.style.width = "322px";
+        line.style.top = "0";
+        line.style.left = "55px";
+        line.style.transform = "rotate(90deg)";
+    } else if (start === 1 && end === 7) {
+        line.style.width = "322px";
+        line.style.top = "0";
+        line.style.left = "160px";
+        line.style.transform = "rotate(90deg)";
+    } else if (start === 2 && end === 8) {
+        line.style.width = "322px";
+        line.style.top = "";
+        line.style.left = "265px";
+        line.style.transform = "rotate(90deg)";
+    } else if (start === 0 && end === 8) {
+        line.style.width = "444px";
+        line.style.top = "0";
+        line.style.left = "3px";
+        line.style.transform = "rotate(45.7deg)";
+    } else if (start === 2 && end === 6) {
+        line.style.width = "444px";
+        line.style.top = "318px";
+        line.style.left = "0";
+        line.style.transform = "rotate(-45.5deg)";
+    }
+}
