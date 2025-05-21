@@ -1,144 +1,146 @@
-const board = document.querySelector("#board");
-let currentPlayer = "X";
+const display = document.querySelector(".calculator-screen");
 
-// Kwadraciki do uzupełnienia znakami
-let gameBoard = ["","","","","","","","",""];
-let winningCombo = [0,0,0];
+const buttons = document.querySelectorAll(".calculator-keys>button");
 
-// Tworzenie planszy
-function createBoard() {    
-    for(let i = 0; i < 9; i++){
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.dataset.index = i;
-        cell.addEventListener('click', handleCellClick);
-        board.appendChild(cell);
+let buttonNum = [];
+let buttonOperator = [];
+let buttonFunction = [];
+let cache = [];
+let cacheValue = "";
+let lastOperator = "";
+buttons.forEach((button) => {
+  if (button.classList.contains("operator")) {
+    buttonOperator.push(button);
+    const operator = button.value;
+    switch (operator) {
+      case "+":
+        button.addEventListener("click", (e) => {
+          cache.push(operator);
+          setDisplayValue(operator);
+        });
+        break;
+      case "-":
+        button.addEventListener("click", (e) => {
+          cache.push(operator);
+          setDisplayValue(operator);
+        });
+        break;
+      case "*":
+        button.addEventListener("click", (e) => {
+          cache.push(operator);
+          setDisplayValue(operator);
+        });
+        break;
+      case "/":
+        button.addEventListener("click", (e) => {
+          cache.push(operator);
+          setDisplayValue(operator);
+        });
+        break;
     }
-}
-
-// Funkcja obsługijąca kliknięcie i dodania znaku
-function handleCellClick(event) {
-    const messageTur = document.querySelector("#message");
-    console.log('Cell clicked:', event.target.dataset.index);
-    event.target.textContent = currentPlayer;
-    gameBoard[event.target.dataset.index] = currentPlayer;
-    console.log(checkWin());
-    if(checkWin()) {
-        messageTur.textContent= `${currentPlayer} wygrał!`;
-        console.log(`${currentPlayer} wygrał!`);
-        drawWinningLine();
-    } else {
-    if(currentPlayer === "X") {
-        currentPlayer = "O";
-        messageTur.textContent = "Tura: O"
-    }
-    else {
-        currentPlayer = "X";
-        messageTur.textContent = "Tura: X"
-        }
-        event.target.removeEventListener("click", handleCellClick);
-    }
-}
-
-// Twarzenie planszy
-createBoard();
-
-// Sprawdzanie zwyciężcy
-function checkWin() {
-    const winConditions = [
-        [0,1,2],
-        [3,4,5],
-        [6,7,8],
-        [0,3,6],
-        [1,4,7],
-        [2,5,8],
-        [0,4,8],
-        [2,4,6],
-    ];
-
-
-    for (const condition of winConditions){
-        const [a,b,c] = condition;
-        if (
-            gameBoard[a] &&
-            gameBoard[a] === gameBoard[b] &&
-            gameBoard[a] === gameBoard[c]
-        ) {
-            winningCombo = condition;
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// Przycisk resetujący grę
-const resetBtn = document.querySelector("#resetBtn");
-resetBtn.addEventListener("click", resetGame);
-function resetGame() {
-    gameBoard = ["","","","","","","","",""];
-    currentPlayer = "X";
-    const cells = document.querySelectorAll(".cell");
-    cells.forEach((cell) => {
-        cell.textContent = "";
-        cell.addEventListener("click", handleCellClick)
-
-        const jestLine = document.querySelector(".line");
-        if (jestLine) {
-            jestLine.remove();
-        }
+  }
+  // Moliwość dodawania liczb dziesiętnych
+  else if (button.classList.contains("decimal")) {
+    button.addEventListener("click", (e) => {
+      if (cache[cache.length - 1] !== '.') {
+        cache.push('.');
+        console.log(cache);
+        setDisplayValue(".");
+      }
     });
-    document.getElementById("message").textContent = "Tura: X";
-    
-    
+  } else if (button.classList.contains("all-clear")) {
+    buttonFunction.push(button);
+    button.addEventListener("click", (e) => {
+      clearDisplay();
+      cache = [];
+    });
+  } else if (button.classList.contains("equal-sign")) {
+    buttonFunction.push(button);
+    button.addEventListener("click", (e) => {
+      equal();
+    });
+  } else {
+    buttonNum.push(button);
+    buttonFunction.push(button);
+    button.addEventListener("click", (e) => {
+      cache.push(parseFloat(e.target.value));
+      setDisplayValue(e.target.value);
+      console.log(cache);
+    });
+  }
+});
+
+function setDisplayValue(value) {
+  display.innerText += value;
+  console.log("value:" + value);
+  cacheValue += value;
 }
-resetGame();
+function clearDisplay() {
+  display.innerText = "";
+  cacheValue = "";
+}
+let test = true;
+function add(a) {
+  cache.push(a);
+  console.log(cache);
+}
+function subtract(a) {
+  cache.push(a);
+  console.log(cache);
+}
 
-// Rysowanie linii po wygraniu
-function drawWinningLine() {
-    const line = document.createElement("div");
-    line.classList.add("line");
-    board.appendChild(line);
+function multiply(a) {
+  cache.push(a);
+  console.log(cache);
+}
 
-    const start = winningCombo[0];
-    const end = winningCombo[2];
+function division(a) {
+  cache.push(a);
+  console.log(cache);
+}
 
-    console.log(winningCombo[0], winningCombo[1], winningCombo[2]);
-    console.log(winningCombo);
 
-    if (start === 0 && end === 2) {
-        line.style.top = "50px";
-        line.style.left = "0";
-    } else if (start === 3 && end === 5) {
-        line.style.top = "155px";
-        line.style.left = "0";
-    } else if (start === 6 && end === 8) {
-        line.style.top = "260px";
-        line.style.left = "0";
-    } else if (start === 0 && end === 6) {
-        line.style.width = "322px";
-        line.style.top = "0";
-        line.style.left = "55px";
-        line.style.transform = "rotate(90deg)";
-    } else if (start === 1 && end === 7) {
-        line.style.width = "322px";
-        line.style.top = "0";
-        line.style.left = "160px";
-        line.style.transform = "rotate(90deg)";
-    } else if (start === 2 && end === 8) {
-        line.style.width = "322px";
-        line.style.top = "";
-        line.style.left = "265px";
-        line.style.transform = "rotate(90deg)";
-    } else if (start === 0 && end === 8) {
-        line.style.width = "444px";
-        line.style.top = "0";
-        line.style.left = "3px";
-        line.style.transform = "rotate(45.7deg)";
-    } else if (start === 2 && end === 6) {
-        line.style.width = "444px";
-        line.style.top = "318px";
-        line.style.left = "0";
-        line.style.transform = "rotate(-45.5deg)";
+function equal() {
+  if (cache.length === 0) return;
+
+  const expression = cache.join('').replaceAll(/(\*|\/|\+|-)$/g, '');
+  
+  // Zabezpieczenie przed złymi danymi
+  const safePattern = /^[0-9+\-*/. ]+$/;
+
+  if (safePattern.test(expression)) {
+    try {
+      const result = eval(expression);
+      clearDisplay();
+      setDisplayValue(result.toString());
+      cache = [result];
+    } catch (error) {
+      clearDisplay();
+      setDisplayValue("Error: Invalid expression");
+      cache = [];
     }
+  } else {
+    clearDisplay();
+    setDisplayValue("Error: Invalid expression");
+    cache = [];
+  }
 }
+
+// Sprawdź, jaki operator został wybrany jako ostatni i czy została podana liczba, wtedy wykonaj działanie ostatniego operatora.
+// Jeśli nie podano liczby, a kliknięto operator, wyświetl wartość z pamięci podręcznej (cache).
+
+// Metoda/funkcja mnożenia
+
+// Metoda/funkcja dzielenia
+
+// Metoda/funkcja dodawania liczb zmiennoprzecinkowych: dodawany jest przecinek, a wartości float muszą zawierać kropkę (np. 1.2 zamiast 1,2).
+
+// Te zmienne nie są wykorzystywane. Dodaje się do nich przyciski z kalkulatora, ale potem nie są używane.
+// Pasowałoby je usunąć z kodu.
+// let buttonNum = [];
+// let buttonOperator = [];
+// let buttonFunction = [];
+
+// Gdy wszystko będzie działać, dopisz komentarze wyjaśniające działanie kodu oraz udokumentuj go w plikach Markdown dokumentacji:
+// https://github.com/Code-V-Craft/Documentation
+// Ten kod powinien być w Moduł 0: Kalkulator
