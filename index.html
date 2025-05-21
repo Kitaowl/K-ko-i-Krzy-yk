@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Kółko i Krzyżyk</title>
     <style>
+      /* Układ planszy */
       .board {
         display: grid;
         grid-template-columns: repeat(3, 100px);
@@ -11,24 +12,70 @@
         width: 310px;
         position: relative;
       }
+
+      /* Pojedyncze pole */
       .cell {
         width: 100px;
         height: 100px;
         border: 2px solid black;
         text-align: center;
-        align-content: center;
         font-size: 40px;
         cursor: pointer;
         font-weight: bolder;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+
+      /* Efekt najechania */
+      .cell:hover {
+        background: linear-gradient(135deg, #f6d365, #fda085);
+        transform: scale(1.05);
+      }
+
+      /* Efekt kliknięcia */
+      .cell:active {
+        transform: scale(0.95);
+      }
+
+      /* Kolor liter X i O */
+      .cell.x {
+        color: #2196f3; /* niebieski */
+      }
+      .cell.o {
+        color: #e91e63; /* różowy */
+      }
+
+      /* Animacja wpisania X lub O */
+      .cell.filled {
+        animation: pop 0.3s ease-in-out;
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Czerwona linia zwycięstwa */
       .line {
         width: 314px;
         height: 5px;
         position: absolute;
         background-color: red;
         transform-origin: 0 0;
+        z-index: 1;
       }
 
+      /* Styl całej strony */
       body {
         font-family: "Segoe UI", sans-serif;
         background: linear-gradient(135deg, #fceabb, #f8b500);
@@ -41,6 +88,7 @@
         padding-top: 40px;
       }
 
+      /* Nagłówek gry */
       h1 {
         background: linear-gradient(90deg, #ff416c, #ff4b2b);
         background-clip: text;
@@ -50,9 +98,9 @@
         margin-bottom: 20px;
       }
 
+      /* Komunikat tury lub wygranej */
       #message {
         font-size: 20px;
-        color: #444;
         font-weight: bold;
         background: linear-gradient(90deg, #00c9ff, #92fe9d);
         background-clip: text;
@@ -62,6 +110,7 @@
         margin-bottom: 10px;
       }
 
+      /* Przycisk resetu */
       #resetBtn {
         padding: 12px 24px;
         font-size: 16px;
@@ -70,21 +119,11 @@
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       }
 
       #resetBtn:hover {
-        transform: scale(1.05);
         box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
-      }
-
-      .cell {
-        transition: background-color 0.2s ease;
-      }
-
-      .cell:hover {
-        background: linear-gradient(135deg, #f6d365, #fda085);
       }
     </style>
   </head>
