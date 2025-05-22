@@ -19,6 +19,13 @@ Gra "Kółko i Krzyżyk" w HTML, CSS i JavaScript. Po wygraniu, rysuje linię zw
         [2,4,6],
     ];`
    To są zwycięskie kombinacje
+   ` if (start === 0 && end === 2) {
+        line.style.top = "50px";
+        line.style.left = "0";
+    } else if (start === 3 && end === 5) {
+        line.style.top = "155px";
+        line.style.left = "0";`
+   To jest rysowanie linii
    
 7. **Przycisk resetowania gry**  
    Pozwala zrestartować grę i zacząć od nowa bez odświeżania strony.
