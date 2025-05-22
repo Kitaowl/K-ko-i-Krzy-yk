@@ -1,176 +1,244 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Pobieranie elementów z DOM
-    const fileInput = document.getElementById('jsonFileInput');
-    const generateBtn = document.getElementById('generateBtn');
-    const changeStyleBtn = document.getElementById('changeStyleBtn');
-    const contentContainer = document.getElementById('contentContainer');
-    const errorMessage = document.getElementById('errorMessage');
-    
-    // Deklarujemy zmienne do przechowywania danych i bieżącego stylu
-    let jsonData = null;
-    let currentStyleIndex = 0;
-    // Dostępne style, które mogą być użyte
-    const availableStyles = ['style-default', 'style-modern', 'style-elegant'];
-    
-    // Obsługa zmiany pliku przez użytkownika
-    fileInput.addEventListener('change', function(e) {
-        // Reset komunikatu o błędzie
-        errorMessage.textContent = '';
-        
-        // Pobieranie wybrany plik
-        const file = e.target.files[0];
-        
-        // Przyciski nie działają, kiedy plik nie jest wybrany
-        if (!file) {
-            generateBtn.disabled = true;
-            changeStyleBtn.disabled = true;
-            return;
-        }
-        
-        // FileRead odczytuje plik
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            try {
-                // Parsujemy dane JSON z pliku
-                jsonData = JSON.parse(e.target.result);
-                // Włączenie przycisków po załadowaniu pliku
-                generateBtn.disabled = false;
-                changeStyleBtn.disabled = false;
-                
-                // Resetujemy indeks stylu przy nowym pliku
-                currentStyleIndex = 0;
-            } catch (error) {
-                // Wyświetlaenie błędu, jeśli JSON nie jest poprawny
-                errorMessage.textContent = 'Błąd w pliku JSON: ' + error.message;
-                generateBtn.disabled = true;
-                changeStyleBtn.disabled = true;
-            }
-        };
-        
-        reader.onerror = function() {
-            // Wyświetlenie błędu, jeżeli się nie uda odczytać pliku
-            errorMessage.textContent = 'Błąd podczas odczytu pliku';
-            generateBtn.disabled = true;
-            changeStyleBtn.disabled = true;
-        };
-        
-        // Odczytanie plik jako tekst
-        reader.readAsText(file);
-    });
-    
-    // Obsługa kliknięcia przycisku generowania strony
-    generateBtn.addEventListener('click', function() {
-        // Jeśli nie ma załadowanych danych, wyświetli się błąd
-        if (!jsonData) {
-            errorMessage.textContent = 'Najpierw trzeba załadować plik JSON';
-            return;
-        }
-        
-        // Generacja stronę ze załadowanych danych
-        generatePage(jsonData);
-    });
-    
-    // Obsługa zmiany stylu
-    changeStyleBtn.addEventListener('click', function() {
-        // Jeśli brak danych, żadna akcja się nie wykonuje
-        if (!jsonData) return;
-        
-        // Zmieniamy indeks stylu
-        currentStyleIndex = (currentStyleIndex + 1) % availableStyles.length;
-        // Generujemy stronę z nowym stylem
-        generatePage(jsonData);
-    });
-    
-    // Funkcja do generowania zawartości strony na podstawie danych JSON
-    function generatePage(data) {
-        // Czyścimy zawartość kontenera
-        contentContainer.innerHTML = '';
-        
-        // Wybieramy styl: jeśli jest w danych JSON, używamy go, w przeciwnym razie stosujemy bieżący styl
-        let selectedStyle;
-        if (data.style && availableStyles.includes(data.style)) {
-            selectedStyle = data.style;
-            // Ustawiamy indeks na znaleziony styl
-            currentStyleIndex = availableStyles.indexOf(data.style);
-        } else {
-            selectedStyle = availableStyles[currentStyleIndex];
-        }
-        
-        console.log('Używany styl:', selectedStyle); // Debugowanie
-        
-        // Tworzymy główny kontener zawartości
-        const contentDiv = document.createElement('div');
-        contentDiv.className = `generated-content ${selectedStyle}`;
-        
-        // Generowanie nagłówka strony, jeśli jest obecny w danych
-        if (data.title) {
-            const title = document.createElement('h2');
-            title.textContent = data.title;
-            contentDiv.appendChild(title);
-        }
-        
-        // Generowanie opisu, jeśli jest obecny w danych
-        if (data.description) {
-            const description = document.createElement('p');
-            description.textContent = data.description;
-            contentDiv.appendChild(description);
-        }
-        
-        // Generowanie obrazka, jeśli jest obecny w danych
-        if (data.imageUrl) {
-            const image = document.createElement('img');
-            image.src = data.imageUrl;
-            image.alt = data.imageAlt || 'Obrazek';
-            contentDiv.appendChild(image);
-        }
-        
-        // Generowanie sekcji, jeśli są obecne w danych
-        if (data.sections && Array.isArray(data.sections)) {
-            data.sections.forEach(section => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'section';
-                
-                // Generowanie nagłówka sekcji
-                if (section.title) {
-                    const sectionHeader = document.createElement('div');
-                    sectionHeader.className = 'section-header';
-                    sectionHeader.textContent = section.title;
-                    sectionDiv.appendChild(sectionHeader);
-                }
-                
-                // Generowanie zawartości sekcji
-                if (section.content) {
-                    if (Array.isArray(section.content)) {
-                        // Tworzymy listę, jeśli zawartość jest tablicą
-                        const list = document.createElement('ul');
-                        section.content.forEach(item => {
-                            const listItem = document.createElement('li');
-                            listItem.textContent = item;
-                            list.appendChild(listItem);
-                        });
-                        sectionDiv.appendChild(list);
-                    } else {
-                        // Tworzymy paragraf, jeśli zawartość jest tekstem
-                        const paragraph = document.createElement('p');
-                        paragraph.textContent = section.content;
-                        sectionDiv.appendChild(paragraph);
-                    }
-                }
-                
-                contentDiv.appendChild(sectionDiv);
-            });
-        }
-        
-        // Generowanie stopki, jeśli jest obecna w danych
-        if (data.footer) {
-            const footer = document.createElement('div');
-            footer.className = 'footer';
-            footer.textContent = data.footer;
-            contentDiv.appendChild(footer);
-        }
-        
-        // Dodajemy wygenerowaną zawartość do kontenera na stronie
-        contentContainer.appendChild(contentDiv);
-    }
+// Pobranie elementów z DOM
+const gameContainer = document.getElementById("game");
+const message = document.getElementById("message");
+const resetBtn = document.getElementById("reset");
+const canvas = document.getElementById("line");
+const ctx = canvas.getContext("2d");
+
+let playerMode = 2; // Domyślnie tryb dla 2 graczy
+
+// Stałe gry
+const boardSize = 3;
+let board = Array(boardSize * boardSize).fill(""); // Tablica 3x3 wypełniona pustymi polami
+let currentPlayer = "X"; // X zaczyna
+let gameActive = true; // Flaga, czy gra trwa
+
+// Kombinacje zwycięskie
+const winCombos = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8], // poziomo
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8], // pionowo
+  [0, 4, 8],
+  [2, 4, 6], // diagonalnie
+];
+
+// Obsługa przycisków wyboru liczby graczy
+document.getElementById("one-player").addEventListener("click", () => {
+  playerMode = 1;
+  startGame();
 });
+
+document.getElementById("two-players").addEventListener("click", () => {
+  playerMode = 2;
+  startGame();
+});
+
+// Tworzenie planszy 3x3
+function createBoard() {
+  gameContainer.innerHTML = ""; // Wyczyść stare pola
+  board.forEach((cell, index) => {
+    const div = document.createElement("div");
+    div.classList.add("cell");
+    div.dataset.index = index;
+    div.addEventListener("click", handleClick); // Dodaj obsługę kliknięcia
+    gameContainer.appendChild(div);
+  });
+
+  resizeCanvas(); // Dostosuj rozmiar canvas do planszy
+}
+
+// Obsługa kliknięcia pola gry
+function handleClick(e) {
+  const index = e.target.dataset.index;
+
+  if (!gameActive || board[index]) return; // Jeśli gra nieaktywna lub pole zajęte — ignoruj
+
+  board[index] = currentPlayer;
+  e.target.textContent = currentPlayer;
+
+  if (checkWinner()) {
+    message.textContent = `Gracz ${currentPlayer} wygrał!`;
+    gameActive = false;
+    return;
+  }
+
+  if (!board.includes("")) {
+    message.textContent = "Remis!";
+    gameActive = false;
+    return;
+  }
+
+  // Zmiana gracza
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+  // Jeśli AI ma ruch
+  if (playerMode === 1 && currentPlayer === "O") {
+    setTimeout(aiMove, 500); // Krótkie opóźnienie dla naturalności
+  }
+}
+
+// Sprawdzenie, czy jest zwycięzca
+function checkWinner() {
+  for (let combo of winCombos) {
+    const [a, b, c] = combo;
+    if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+      drawWinLine(combo); // Rysuj linię przez zwycięskie pola
+      return true;
+    }
+  }
+  return false;
+}
+
+// Rysowanie czerwonej linii zwycięstwa
+function drawWinLine([a, b, c]) {
+  const cells = document.querySelectorAll(".cell");
+  const start = cells[a].getBoundingClientRect();
+  const end = cells[c].getBoundingClientRect();
+
+  const gameRect = gameContainer.getBoundingClientRect();
+
+  // Oblicz współrzędne względem planszy
+  const startX = start.left + start.width / 2 - gameRect.left;
+  const startY = start.top + start.height / 2 - gameRect.top;
+  const endX = end.left + end.width / 2 - gameRect.left;
+  const endY = end.top + end.height / 2 - gameRect.top;
+
+  // Rysowanie linię
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.stroke();
+}
+
+// Reset gry i powrót do wyboru trybu
+function resetGame() {
+  board = Array(boardSize * boardSize).fill(""); // Wyczyść planszę
+  currentPlayer = "X";
+  gameActive = true;
+  message.textContent = "";
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Czyść canvas
+  gameContainer.innerHTML = ""; // Usuń pola
+  document.getElementById("player-select").style.display = "block"; // Pokaż wybór graczy
+  document.getElementById("reset").style.display = "none"; // Ukryj reset
+}
+
+// Uruchomienie gry po wyborze graczy
+function startGame() {
+  document.getElementById("player-select").style.display = "none"; // Ukryj wybór
+  document.getElementById("reset").style.display = "inline-block"; // Pokaż reset
+  board = Array(boardSize * boardSize).fill(""); // Zresetuj planszę
+  currentPlayer = "X";
+  gameActive = true;
+  message.textContent = "";
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Czyść canvas
+  createBoard(); // Stwórz planszę
+}
+
+// Dopasowanie rozmiaru canvas do planszy
+function resizeCanvas() {
+  const rect = gameContainer.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  canvas.style.top = rect.top + "px";
+  canvas.style.left = rect.left + "px";
+}
+
+// Nasłuchiwanie na reset i zmianę rozmiaru okna
+resetBtn.addEventListener("click", resetGame);
+window.addEventListener("resize", resizeCanvas);
+
+// AI (Minimax) dla trybu 1 gracza
+
+// Ruch AI jako O
+function aiMove() {
+  const bestMove = getBestMove();
+  const cell = document.querySelector(`.cell[data-index='${bestMove}']`);
+  board[bestMove] = currentPlayer;
+  cell.textContent = currentPlayer;
+
+  if (checkWinner()) {
+    message.textContent = `Gracz ${currentPlayer} wygrał!`;
+    gameActive = false;
+    return;
+  }
+
+  if (!board.includes("")) {
+    message.textContent = "Remis!";
+    gameActive = false;
+    return;
+  }
+
+  currentPlayer = "X"; // Po ruchu AI wraca do gracza
+}
+
+// Znalezienie najlepszego ruchu
+function getBestMove() {
+  let bestScore = -Infinity;
+  let move;
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === "") {
+      board[i] = "O";
+      let score = minimax(board, 0, false);
+      board[i] = "";
+      if (score > bestScore) {
+        bestScore = score;
+        move = i;
+      }
+    }
+  }
+  return move;
+}
+
+// Algorytm Minimax
+function minimax(boardState, depth, isMaximizing) {
+  const result = checkWinState(boardState);
+  if (result !== null) {
+    const scores = { X: -1, O: 1, tie: 0 };
+    return scores[result];
+  }
+
+  if (isMaximizing) {
+    let bestScore = -Infinity;
+    for (let i = 0; i < boardState.length; i++) {
+      if (boardState[i] === "") {
+        boardState[i] = "O";
+        let score = minimax(boardState, depth + 1, false);
+        boardState[i] = "";
+        bestScore = Math.max(score, bestScore);
+      }
+    }
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < boardState.length; i++) {
+      if (boardState[i] === "") {
+        boardState[i] = "X";
+        let score = minimax(boardState, depth + 1, true);
+        boardState[i] = "";
+        bestScore = Math.min(score, bestScore);
+      }
+    }
+    return bestScore;
+  }
+}
+
+// Sprawdzenie zwycięzcy dla Minimax
+function checkWinState(tempBoard) {
+  for (let combo of winCombos) {
+    const [a, b, c] = combo;
+    if (tempBoard[a] && tempBoard[a] === tempBoard[b] && tempBoard[b] === tempBoard[c]) {
+      return tempBoard[a]; // Zwraca "X" lub "O"
+    }
+  }
+
+  if (!tempBoard.includes("")) {
+    return "tie"; // Remis
+  }
+
+  return null; // Gra nadal trwa
+}
