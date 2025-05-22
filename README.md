@@ -47,3 +47,5 @@ function resetGame() {
 
 9. **Responsywny układ planszy**  
    Gra działa dobrze na różnych urządzeniach.
+`<meta charset="UTF-8">`
+W HTML "UTF-8" zabezpiecza responsywność strony
