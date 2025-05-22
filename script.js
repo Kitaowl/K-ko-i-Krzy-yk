@@ -1,145 +1,176 @@
-const board = document.querySelector("#board");
-let currentPlayer = "X";
-
-// Kwadraciki do uzupełnienia znakami
-let gameBoard = ["","","","","","","","",""];
-let winningCombo = [0,0,0];
-
-// Tworzenie planszy
-function createBoard() {    
-    for(let i = 0; i < 9; i++){
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.dataset.index = i;
-        cell.addEventListener('click', handleCellClick);
-        board.appendChild(cell);
-    }
-}
-
-// Funkcja obsługijąca kliknięcie i dodania znaku
-function handleCellClick(event) {
-    const messageTur = document.querySelector("#message");
-    console.log('Cell clicked:', event.target.dataset.index);
-    event.target.textContent = currentPlayer;
-    gameBoard[event.target.dataset.index] = currentPlayer;
-    console.log(checkWin());
-    if(checkWin()) {
-        messageTur.textContent= `${currentPlayer} wygrał!`;
-        console.log(`${currentPlayer} wygrał!`);
-        drawWinningLine();
-    } else {
-    if(currentPlayer === "X") {
-        currentPlayer = "O";
-        messageTur.textContent = "Tura: O"
-    }
-    else {
-        currentPlayer = "X";
-        messageTur.textContent = "Tura: X"
-        }
-        event.target.removeEventListener("click", handleCellClick);
-    }
-}
-
-// Twarzenie planszy
-createBoard();
-
-// Sprawdzanie zwyciężcy
-function checkWin() {
-    const winConditions = [
-        // Kwadraciki, gdzie mozna wygrać
-        [0,1,2],
-        [3,4,5],
-        [6,7,8],
-        [0,3,6],
-        [1,4,7],
-        [2,5,8],
-        [0,4,8],
-        [2,4,6],
-    ];
-
-
-    for (const condition of winConditions){
-        const [a,b,c] = condition;
-        if (
-            gameBoard[a] &&
-            gameBoard[a] === gameBoard[b] &&
-            gameBoard[a] === gameBoard[c]
-        ) {
-            winningCombo = condition;
-            return true;
-        }
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    // Pobieranie elementów z DOM
+    const fileInput = document.getElementById('jsonFileInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const changeStyleBtn = document.getElementById('changeStyleBtn');
+    const contentContainer = document.getElementById('contentContainer');
+    const errorMessage = document.getElementById('errorMessage');
     
-    return false;
-}
-
-// Przycisk resetujący grę
-const resetBtn = document.querySelector("#resetBtn");
-resetBtn.addEventListener("click", resetGame);
-function resetGame() {
-    gameBoard = ["","","","","","","","",""];
-    currentPlayer = "X";
-    const cells = document.querySelectorAll(".cell");
-    cells.forEach((cell) => {
-        cell.textContent = "";
-        cell.addEventListener("click", handleCellClick)
-
-        const jestLine = document.querySelector(".line");
-        if (jestLine) {
-            jestLine.remove();
+    // Deklarujemy zmienne do przechowywania danych i bieżącego stylu
+    let jsonData = null;
+    let currentStyleIndex = 0;
+    // Dostępne style, które mogą być użyte
+    const availableStyles = ['style-default', 'style-modern', 'style-elegant'];
+    
+    // Obsługa zmiany pliku przez użytkownika
+    fileInput.addEventListener('change', function(e) {
+        // Reset komunikatu o błędzie
+        errorMessage.textContent = '';
+        
+        // Pobieranie wybrany plik
+        const file = e.target.files[0];
+        
+        // Przyciski nie działają, kiedy plik nie jest wybrany
+        if (!file) {
+            generateBtn.disabled = true;
+            changeStyleBtn.disabled = true;
+            return;
         }
+        
+        // FileRead odczytuje plik
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                // Parsujemy dane JSON z pliku
+                jsonData = JSON.parse(e.target.result);
+                // Włączenie przycisków po załadowaniu pliku
+                generateBtn.disabled = false;
+                changeStyleBtn.disabled = false;
+                
+                // Resetujemy indeks stylu przy nowym pliku
+                currentStyleIndex = 0;
+            } catch (error) {
+                // Wyświetlaenie błędu, jeśli JSON nie jest poprawny
+                errorMessage.textContent = 'Błąd w pliku JSON: ' + error.message;
+                generateBtn.disabled = true;
+                changeStyleBtn.disabled = true;
+            }
+        };
+        
+        reader.onerror = function() {
+            // Wyświetlenie błędu, jeżeli się nie uda odczytać pliku
+            errorMessage.textContent = 'Błąd podczas odczytu pliku';
+            generateBtn.disabled = true;
+            changeStyleBtn.disabled = true;
+        };
+        
+        // Odczytanie plik jako tekst
+        reader.readAsText(file);
     });
-    document.getElementById("message").textContent = "Tura: X";
     
+    // Obsługa kliknięcia przycisku generowania strony
+    generateBtn.addEventListener('click', function() {
+        // Jeśli nie ma załadowanych danych, wyświetli się błąd
+        if (!jsonData) {
+            errorMessage.textContent = 'Najpierw trzeba załadować plik JSON';
+            return;
+        }
+        
+        // Generacja stronę ze załadowanych danych
+        generatePage(jsonData);
+    });
     
-}
-resetGame();
-
-// Rysowanie linii po wygraniu
-function drawWinningLine() {
-    const line = document.createElement("div");
-    line.classList.add("line");
-    board.appendChild(line);
-
-    const start = winningCombo[0];
-    const end = winningCombo[2];
-
-    console.log(winningCombo[0], winningCombo[1], winningCombo[2]);
-    console.log(winningCombo);
-
-    if (start === 0 && end === 2) {
-        line.style.top = "50px";
-        line.style.left = "0";
-    } else if (start === 3 && end === 5) {
-        line.style.top = "155px";
-        line.style.left = "0";
-    } else if (start === 6 && end === 8) {
-        line.style.top = "260px";
-        line.style.left = "0";
-    } else if (start === 0 && end === 6) {
-        line.style.width = "322px";
-        line.style.top = "0";
-        line.style.left = "55px";
-        line.style.transform = "rotate(90deg)";
-    } else if (start === 1 && end === 7) {
-        line.style.width = "322px";
-        line.style.top = "0";
-        line.style.left = "160px";
-        line.style.transform = "rotate(90deg)";
-    } else if (start === 2 && end === 8) {
-        line.style.width = "322px";
-        line.style.top = "";
-        line.style.left = "265px";
-        line.style.transform = "rotate(90deg)";
-    } else if (start === 0 && end === 8) {
-        line.style.width = "444px";
-        line.style.top = "0";
-        line.style.left = "3px";
-        line.style.transform = "rotate(45.7deg)";
-    } else if (start === 2 && end === 6) {
-        line.style.width = "444px";
-        line.style.top = "318px";
-        line.style.left = "0";
-        line.style.transform = "rotate(-45.5deg)";
+    // Obsługa zmiany stylu
+    changeStyleBtn.addEventListener('click', function() {
+        // Jeśli brak danych, żadna akcja się nie wykonuje
+        if (!jsonData) return;
+        
+        // Zmieniamy indeks stylu
+        currentStyleIndex = (currentStyleIndex + 1) % availableStyles.length;
+        // Generujemy stronę z nowym stylem
+        generatePage(jsonData);
+    });
+    
+    // Funkcja do generowania zawartości strony na podstawie danych JSON
+    function generatePage(data) {
+        // Czyścimy zawartość kontenera
+        contentContainer.innerHTML = '';
+        
+        // Wybieramy styl: jeśli jest w danych JSON, używamy go, w przeciwnym razie stosujemy bieżący styl
+        let selectedStyle;
+        if (data.style && availableStyles.includes(data.style)) {
+            selectedStyle = data.style;
+            // Ustawiamy indeks na znaleziony styl
+            currentStyleIndex = availableStyles.indexOf(data.style);
+        } else {
+            selectedStyle = availableStyles[currentStyleIndex];
+        }
+        
+        console.log('Używany styl:', selectedStyle); // Debugowanie
+        
+        // Tworzymy główny kontener zawartości
+        const contentDiv = document.createElement('div');
+        contentDiv.className = `generated-content ${selectedStyle}`;
+        
+        // Generowanie nagłówka strony, jeśli jest obecny w danych
+        if (data.title) {
+            const title = document.createElement('h2');
+            title.textContent = data.title;
+            contentDiv.appendChild(title);
+        }
+        
+        // Generowanie opisu, jeśli jest obecny w danych
+        if (data.description) {
+            const description = document.createElement('p');
+            description.textContent = data.description;
+            contentDiv.appendChild(description);
+        }
+        
+        // Generowanie obrazka, jeśli jest obecny w danych
+        if (data.imageUrl) {
+            const image = document.createElement('img');
+            image.src = data.imageUrl;
+            image.alt = data.imageAlt || 'Obrazek';
+            contentDiv.appendChild(image);
+        }
+        
+        // Generowanie sekcji, jeśli są obecne w danych
+        if (data.sections && Array.isArray(data.sections)) {
+            data.sections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                
+                // Generowanie nagłówka sekcji
+                if (section.title) {
+                    const sectionHeader = document.createElement('div');
+                    sectionHeader.className = 'section-header';
+                    sectionHeader.textContent = section.title;
+                    sectionDiv.appendChild(sectionHeader);
+                }
+                
+                // Generowanie zawartości sekcji
+                if (section.content) {
+                    if (Array.isArray(section.content)) {
+                        // Tworzymy listę, jeśli zawartość jest tablicą
+                        const list = document.createElement('ul');
+                        section.content.forEach(item => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = item;
+                            list.appendChild(listItem);
+                        });
+                        sectionDiv.appendChild(list);
+                    } else {
+                        // Tworzymy paragraf, jeśli zawartość jest tekstem
+                        const paragraph = document.createElement('p');
+                        paragraph.textContent = section.content;
+                        sectionDiv.appendChild(paragraph);
+                    }
+                }
+                
+                contentDiv.appendChild(sectionDiv);
+            });
+        }
+        
+        // Generowanie stopki, jeśli jest obecna w danych
+        if (data.footer) {
+            const footer = document.createElement('div');
+            footer.className = 'footer';
+            footer.textContent = data.footer;
+            contentDiv.appendChild(footer);
+        }
+        
+        // Dodajemy wygenerowaną zawartość do kontenera na stronie
+        contentContainer.appendChild(contentDiv);
     }
-}
+});
