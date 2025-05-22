@@ -22,6 +22,21 @@ Gra "Kółko i Krzyżyk" w HTML, CSS i JavaScript. Po wygraniu, rysuje linię zw
    
 7. **Przycisk resetowania gry**  
    Pozwala zrestartować grę i zacząć od nowa bez odświeżania strony.
+   `const resetBtn = document.querySelector("#resetBtn");
+resetBtn.addEventListener("click", resetGame);
+function resetGame() {
+    gameBoard = ["","","","","","","","",""];
+    currentPlayer = "X";
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach((cell) => {
+        cell.textContent = "";
+        cell.addEventListener("click", handleCellClick)
 
-8. **Responsywny układ planszy**  
+        const jestLine = document.querySelector(".line");
+        if (jestLine) {
+            jestLine.remove();
+        }
+    });`
+
+9. **Responsywny układ planszy**  
    Gra działa dobrze na różnych urządzeniach.
