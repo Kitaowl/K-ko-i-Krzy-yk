@@ -18,10 +18,10 @@ Gra "Kółko i Krzyżyk" w HTML, CSS i JavaScript. Po wygraniu, rysuje linię zw
         [0,4,8],
         [2,4,6],
     ];`
-   To są zwycięskie kobbinacje
+   To są zwycięskie kombinacje
    
 7. **Przycisk resetowania gry**  
    Pozwala zrestartować grę i zacząć od nowa bez odświeżania strony.
 
 8. **Responsywny układ planszy**  
-   Gra działa dobrze na różnych urządzeniach – plansza dopasowuje się do rozmiaru ekranu, czyli responsywność.
+   Gra działa dobrze na różnych urządzeniach.
