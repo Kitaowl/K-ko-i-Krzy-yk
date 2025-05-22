@@ -4,14 +4,8 @@ Gra "Kółko i Krzyżyk" w HTML, CSS i JavaScript. Można grać samemu z AI i z 
 
 ## Funkcje
 
-1. **Tryb dla dwóch graczy**
-   Pozwala dwóm osobom grać na jednym urządzeniu, na zmianę wykonując ruchy.
-   
 
-3. **Estetyczny interfejs użytkownika**  
-   Przejrzysty, nowoczesny wygląd gry – plansza, przyciski i komunikaty są czytelne i estetyczne.
-
-4. **Rysowanie linii zwycięstwa na canvasie**  
+4. **Rysowanie linii zwycięstwa na draw**  
    Po wygranej, na planszy rysowana jest linia pokazująca zwycięską kombinację.
 
 5. **Obsługa remisu**  
@@ -22,6 +16,3 @@ Gra "Kółko i Krzyżyk" w HTML, CSS i JavaScript. Można grać samemu z AI i z 
 
 7. **Responsywny układ planszy**  
    Gra działa dobrze na różnych urządzeniach – plansza dopasowuje się do rozmiaru ekranu.
-
-8. **Wybór trybu gry (1 lub 2 graczy)**  
-   Możliwość wyboru trybu gry – na razie działa tryb 2 graczy, tryb 1 gracza (z botem) jest planowany do dodania.
