@@ -40,7 +40,7 @@ function handleCellClick(event) {
     }
 }
 
-// Twarzenie planszy
+// Tworzenie planszy
 createBoard();
 
 // Sprawdzanie zwyciężcy
